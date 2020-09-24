@@ -53,9 +53,9 @@ public class Cliente {
     public StringBuilder createMessage(){
 
         StringBuilder stringBuilder = new StringBuilder();
-        System.out.println("Coordenadas(longitud)");
+        System.out.println("Coordenadas(longitud) ");
         stringBuilder.append(sc.next()).append(",");
-        System.out.println("Coordenadas(latitud)");
+        System.out.println("Coordenadas(latitud) ");
         stringBuilder.append(sc.next());
         return stringBuilder;
     }
