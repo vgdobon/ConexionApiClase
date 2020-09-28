@@ -10,7 +10,8 @@ public class Checker {
     public static boolean checkFormat(String messageFromClient){
         // {"lon":46.07, "lat":2.10}
         // {"lon":-156.07, "lat":-87.31}
-       String regExp= "\\{\"lon\":-?\\d{1,3}.\\d{2}, \"lat\":-?\\d{1,2}.\\d{2}}";
+//       String regExp= "\\{\"lon\":-?\\d{1,3}.\\d{2}, \"lat\":-?\\d{1,2}.\\d{2}}";
+       String regExp ="\\{\"lon\":-?\\d{1,3}.\\d{0,6}, \"lat\":-?\\d{1,2}.\\d{0,6}}";
        Matcher matcher= Pattern.compile(regExp).matcher(messageFromClient);
        return matcher.matches();
     }

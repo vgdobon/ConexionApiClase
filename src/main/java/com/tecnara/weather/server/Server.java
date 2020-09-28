@@ -1,6 +1,8 @@
 package com.tecnara.weather.server;
 
+import com.google.gson.Gson;
 import com.tecnara.weather.server.domain.Coordinates;
+import com.tecnara.weather.server.services.meteo.JSONInfoClass;
 import com.tecnara.weather.server.services.meteo.OpenWeatherMap;
 import com.tecnara.weather.server.utils.Checker;
 import com.tecnara.weather.server.utils.Utils;
@@ -28,7 +30,11 @@ public class Server {
                 Coordinates coordinates = Utils.parseCoordinates(coordinatesMsg);
                 if (Checker.checkRange(coordinates)) {
                     String result = OpenWeatherMap.getCurrentWeather(coordinates);
-                    // TODO devolver al cliente
+                    //Temperatura,humedad,tiempoPrincipal, descripcion, velocidad del viento , nombre de poblacion
+
+                    Gson gson = new Gson();
+                    JSONInfoClass jsonInfoClass = gson.fromJson(result,JSONInfoClass.class);
+                    dos.writeUTF(String.valueOf(jsonInfoClass.toString()));
                     System.out.println("Resultado de openWeather: "+result);
                 } else {
                     dos.writeUTF("The range isn't correct.");
