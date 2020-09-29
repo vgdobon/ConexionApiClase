@@ -1,5 +1,9 @@
 package com.tecnara.weather.server.services.meteo;
 
+import com.tecnara.weather.server.domain.Main;
+import com.tecnara.weather.server.domain.Weather;
+import com.tecnara.weather.server.domain.Wind;
+
 import java.util.List;
 
 public class JSONInfoClass {
@@ -44,7 +48,7 @@ public class JSONInfoClass {
     public String toString() {
         //Temperatura,humedad,tiempoPrincipal, descripcion, velocidad del viento , nombre de poblacion
         return "Ciudad: " + this.getName() + "\n" +
-                "Temperatura: " + (Float.parseFloat(main.getTemp()) - 273.15) + "\n" +
+                "Temperatura: " + (Float.parseFloat(main.getTemp()) - 273.15f) + "\n" +
                 "Humedad: " + main.getHumidity() + "\n" +
                 "Tiempo principal: " + getWeather().get(0).getMain() + "\n" +
                 "Descripcion: " + getWeather().get(0).getDescription() + "\n"+

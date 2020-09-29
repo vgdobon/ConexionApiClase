@@ -14,42 +14,88 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
+    ServerSocket serverSocket;
+    Socket socket;
+    DataInputStream dis;
+    DataOutputStream dos;
+
+    public Server(){
+        try {
+            serverSocket = new ServerSocket(3333);
+            socket = serverSocket.accept();
+            dis = new DataInputStream(socket.getInputStream());
+            dos = new DataOutputStream(socket.getOutputStream());
+            System.out.println("Listening...");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public String getRequest(){
+
+        String coordinatesMsg = null;
+        try {
+            coordinatesMsg = dis.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return coordinatesMsg;
+    }
+
+    public boolean checkFormat(String coordinatesMsg){
+
+        return Checker.checkFormat(coordinatesMsg);
+    }
+
+    public boolean checkRange(Coordinates coordinates){
+
+        return Checker.checkRange(coordinates);
+    }
+
+    public Coordinates toCoordinates(String coordinatesMsg){
+        return Utils.parseCoordinates(coordinatesMsg);
+    }
+
+    public void closeConnection(){
+        try {
+            dis.close();
+            dos.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(3333);
-        System.out.println("Listening...");
+
+        Server server = new Server();
+        String coordinatesMsg = server.getRequest();
+
 
         while (true) {
-            Socket socket = serverSocket.accept();
-
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-            String coordinatesMsg = dis.readUTF();
-            System.out.println("The message from the says: " + coordinatesMsg);
-
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            if (Checker.checkFormat(coordinatesMsg)) {
-                Coordinates coordinates = Utils.parseCoordinates(coordinatesMsg);
-                if (Checker.checkRange(coordinates)) {
+            if (server.checkFormat(coordinatesMsg)) {
+                Coordinates coordinates = server.toCoordinates(coordinatesMsg);
+                if (server.checkRange(coordinates)) {
                     String result = OpenWeatherMap.getCurrentWeather(coordinates);
                     //Temperatura,humedad,tiempoPrincipal, descripcion, velocidad del viento , nombre de poblacion
 
                     Gson gson = new Gson();
                     JSONInfoClass jsonInfoClass = gson.fromJson(result,JSONInfoClass.class);
-                    dos.writeUTF(String.valueOf(jsonInfoClass.toString()));
+                    server.dos.writeUTF(jsonInfoClass.toString());
                     System.out.println("Resultado de openWeather: "+result);
                 } else {
-                    dos.writeUTF("The range isn't correct.");
+                    server.dos.writeUTF("The range isn't correct.");
                 }
 
             } else {
-                dos.writeUTF("The sintax isn't correct, write numbers.");
+                server.dos.writeUTF("The sintax isn't correct, write numbers.");
             }
 
-            dis.close();
-            dos.close();
-            socket.close();
+
 
         }
-
+        server.closeConnection();
 
     }
 }

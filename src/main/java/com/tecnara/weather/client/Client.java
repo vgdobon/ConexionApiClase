@@ -8,25 +8,58 @@ import java.util.Scanner;
 
 
 public class Client {
-    public static void main(String[] args) throws IOException {
-        Scanner sc= new Scanner(System.in);
+    Socket socket;
+    DataOutputStream dos;
+    DataInputStream dis;
+    Scanner sc= new Scanner(System.in);
+
+    public Client()  {
+
+        try {
+            socket= new Socket("localhost",3333);
+            dos= new DataOutputStream(socket.getOutputStream());
+            dis = new DataInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getInputParameters(){
+
         System.out.println("Give me the latitude");
         float lat= sc.nextFloat();
         System.out.println("Give me the length");
         float lon= sc.nextFloat();
-        String coordinates= "{\"lon\":"+ lon + ", \"lat\":" + lat + "}";
-
-
-        Socket socket= new Socket("localhost",3333);
-
-        DataOutputStream dos= new DataOutputStream(socket.getOutputStream());
-        dos.writeUTF(coordinates);
-
-        DataInputStream dis= new DataInputStream(socket.getInputStream());
-        System.out.println("The server says: " + dis.readUTF());
-
-        dis.close();
-        dos.close();
-        socket.close();
+        return "{\"lon\":"+ lon + ", \"lat\":" + lat + "}";
     }
+
+    public void sendRequest(String msg)  {
+
+        try {
+            dos.writeUTF(msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getResponse() throws IOException {
+
+        return dis.readUTF();
+    }
+
+    public void closeConnection(){
+        try {
+            if(dis != null)
+                dis.close();
+            if(dos != null)
+                dos.close();
+            if(socket != null)
+                socket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }

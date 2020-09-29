@@ -1,4 +1,4 @@
-package com.tecnara.weather.server.services.meteo;
+package com.tecnara.weather.server.domain;
 
 public class Wind {
     private String speed;
