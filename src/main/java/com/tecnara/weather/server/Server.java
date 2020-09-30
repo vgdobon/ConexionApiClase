@@ -21,36 +21,49 @@ public class Server {
 
     public Server(){
         try {
-            serverSocket = new ServerSocket(3333);
-            socket = serverSocket.accept();
-            dis = new DataInputStream(socket.getInputStream());
-            dos = new DataOutputStream(socket.getOutputStream());
+            serverSocket = new ServerSocket(3334);
             System.out.println("Listening...");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public String getRequest(){
-
-        String coordinatesMsg = null;
+    public Coordinates getRequestCoordinates(){
         try {
-            coordinatesMsg = dis.readUTF();
+            dis = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return coordinatesMsg;
+        Coordinates coordinates = null;
+        String coordinatesMsg;
+
+        try {
+
+            coordinatesMsg = dis.readUTF();
+            if (Checker.checkFormat(coordinatesMsg)){
+                coordinates = toCoordinates(coordinatesMsg);
+                if (!Checker.checkRange(coordinates)) {
+                    dos.writeUTF("The range isn't correct.");
+                }
+            } else {
+                dos.writeUTF("The sintax isn't correct, write numbers.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return coordinates;
     }
 
-    public boolean checkFormat(String coordinatesMsg){
+    public JSONInfoClass sendResponse(String jsonApiWeather){
 
-        return Checker.checkFormat(coordinatesMsg);
+
+        Gson gson = new Gson();
+        JSONInfoClass jsonInfoClass = gson.fromJson(jsonApiWeather,JSONInfoClass.class);
+        return jsonInfoClass;
     }
 
-    public boolean checkRange(Coordinates coordinates){
-
-        return Checker.checkRange(coordinates);
-    }
 
     public Coordinates toCoordinates(String coordinatesMsg){
         return Utils.parseCoordinates(coordinatesMsg);
@@ -67,35 +80,31 @@ public class Server {
 
     }
 
+    public void run(){
+        while(true){
+            try {
+                socket = serverSocket.accept();
+                Coordinates coordinates = getRequestCoordinates();
+                String result = OpenWeatherMap.getCurrentWeather(coordinates);
+                dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF(sendResponse(result).toString());
+                closeConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ;
+        }
+
+    }
+
     public static void main(String[] args) throws IOException {
 
         Server server = new Server();
-        String coordinatesMsg = server.getRequest();
 
-
-        while (true) {
-            if (server.checkFormat(coordinatesMsg)) {
-                Coordinates coordinates = server.toCoordinates(coordinatesMsg);
-                if (server.checkRange(coordinates)) {
-                    String result = OpenWeatherMap.getCurrentWeather(coordinates);
-                    //Temperatura,humedad,tiempoPrincipal, descripcion, velocidad del viento , nombre de poblacion
-
-                    Gson gson = new Gson();
-                    JSONInfoClass jsonInfoClass = gson.fromJson(result,JSONInfoClass.class);
-                    server.dos.writeUTF(jsonInfoClass.toString());
-                    System.out.println("Resultado de openWeather: "+result);
-                } else {
-                    server.dos.writeUTF("The range isn't correct.");
-                }
-
-            } else {
-                server.dos.writeUTF("The sintax isn't correct, write numbers.");
-            }
-
+        server.run();
 
 
         }
-        server.closeConnection();
 
-    }
+
 }

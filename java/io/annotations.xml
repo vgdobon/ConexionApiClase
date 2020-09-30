@@ -1,0 +1,7 @@
+<root>
+    <item name='java.io.DataInputStream java.lang.String readUTF()'>
+        <annotation name='org.jetbrains.annotations.Contract'>
+            <val val="&quot;-&gt;new&quot;"/>
+        </annotation>
+    </item>
+</root>

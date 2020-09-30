@@ -16,7 +16,7 @@ public class Client {
     public Client()  {
 
         try {
-            socket= new Socket("localhost",3333);
+            socket= new Socket("localhost",3334);
             dos= new DataOutputStream(socket.getOutputStream());
             dis = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {
@@ -43,8 +43,7 @@ public class Client {
     }
 
     public String getResponse() throws IOException {
-
-        return dis.readUTF();
+          return dis.readUTF();
     }
 
     public void closeConnection(){

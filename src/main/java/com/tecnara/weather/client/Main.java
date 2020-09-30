@@ -8,7 +8,6 @@ public class Main {
         Client client = new Client();
         client.sendRequest(client.getInputParameters());
         System.out.println(client.getResponse());
-        client.closeConnection();
 
     }
 }
